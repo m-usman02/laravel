@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-
+use App\Rules\UniqueUserName;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        \Validator::extend('unique_user_name', function ($attribute, $value, $parameters, $validator) {
+            list($table, $column) = $parameters;
+            return (new UniqueUserName($table, $column))->passes($attribute, $value);
+        });
     }
 }

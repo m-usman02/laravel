@@ -21,11 +21,11 @@ class AuthController extends Controller
     public function proceedRegister(Request $request)
     {
          $request->validate([               
-               'name'=>'required|max:255',
+               'name'=>'required|max:255|unique_user_name:users,name',
                'email'=>'required|email|max:255|unique:users',
                'password'=>'required|max:255', 
                'confirm_password'=>'required|max:255|same:password',          
-           ]);
+           ],['name.unique_user_name'=>'Name already exists']);
          $user = User::create([
          'name'=>$request->name,
          'email'=>$request->email,
