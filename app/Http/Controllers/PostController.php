@@ -57,7 +57,10 @@ class PostController extends Controller
     public function store(PostRequest $request)
     {
        
-        $fileNameToStore = null;
+        
+        try {
+            \DB::beginTransaction();           
+            $fileNameToStore = null;
         if($request->hasFile('image')){
                $file = $request->file('image');              
                //file name to store
@@ -69,11 +72,18 @@ class PostController extends Controller
         $post = new Post;
         $post->title = $request->title;
         $post->body = $request->body;
-        $post->user_id = 1;  
+        $post->user_id = auth()->id();  
         $post->image = $fileNameToStore;
-        $post->slug = Str::slug($request->title.'-'.'1', '-');        
+        $post->slug = Str::slug($request->title.'-'.auth()->id(), '-');        
         $post->save();       
-        return redirect()->route('post.index')->with('message', 'Post Created Successfully!');
+        \DB::commit();
+        return redirect()->route('post.index')->with('message', 'Post Created Successfully!');        
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::emergency("File: ".$e->getFile().'Line: '.$e->getLine().'Message: '.$e->getMessage());
+            return back()->with('message', 'Something went wrong!');           
+        }
+        
     }
 
     /**
@@ -106,25 +116,35 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(PostRequest $request, Post $post)
-    {
-        $fileNameToStore = $post->image;
-        if($request->hasFile('image')){
-               $file = $request->file('image');              
-               $fileNameToStore = 'image'.time().rand(1,10).'.'.$file->getClientOriginalExtension();
-               //upload image
-               $file->storeAs('public', $fileNameToStore);
-              
-               if (file_exists(Storage::path('public/'.$post->avatar))) {                
-                 Storage::delete('public/'.$post->avatar);               
-               }
+    {   
+        try {
+            \DB::beginTransaction();           
+            $fileNameToStore = $post->image;
+            if($request->hasFile('image')){
+                   $file = $request->file('image');              
+                   $fileNameToStore = 'image'.time().rand(1,10).'.'.$file->getClientOriginalExtension();
+                   //upload image
+                   $file->storeAs('public', $fileNameToStore);
+                  
+                   if (file_exists(Storage::path('public/'.$post->avatar))) {                
+                     Storage::delete('public/'.$post->avatar);               
+                   }
+            }
+     
+        $post->title = $request->title;
+        $post->body = $request->body;   
+        $post->image = $fileNameToStore;
+        $post->slug = Str::slug($request->title.'-'.auth()->id(), '-');        
+        $post->save();       
+        \DB::commit();
+        return redirect()->route('post.index')->with('message', 'Post Updated Successfully!');
+        
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::emergency("File: ".$e->getFile().'Line: '.$e->getLine().'Message: '.$e->getMessage());
+            return back()->with('message', 'Something went wrong!');           
         }
         
-        $post->title = $request->title;
-        $post->body = $request->body;      
-        $post->image = $fileNameToStore;
-        $post->slug = Str::slug($request->title.'-'.'1', '-');        
-        $post->save();       
-        return redirect()->route('post.index')->with('message', 'Post Updated Successfully!');
     }
 
     /**
