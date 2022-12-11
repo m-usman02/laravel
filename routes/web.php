@@ -20,8 +20,9 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/logout',[Controllers\AuthController::class,'logout'])->name('logout');
     Route::resource('/post',Controllers\PostController::class)->names('post');
 });
-
+Route::middleware(['guest'])->group(function(){
 Route::get('/login',[Controllers\AuthController::class,'login'])->name('login');
 Route::post('/login',[Controllers\AuthController::class,'proceedLogin'])->name('proceed_login');
 Route::get('/register',[Controllers\AuthController::class,'register'])->name('register');
 Route::post('/register',[Controllers\AuthController::class,'proceedRegister'])->name('proceed_register');
+});
