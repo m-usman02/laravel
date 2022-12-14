@@ -74,7 +74,7 @@ class PostController extends Controller
         $post->body = $request->body;
         $post->user_id = auth()->id();  
         $post->image = $fileNameToStore;
-        $post->slug = Str::slug($request->title.'-'.auth()->id(), '-');        
+        $post->slug = Str::slug($request->title);        
         $post->save();       
         \DB::commit();
         return redirect()->route('post.index')->with('message', 'Post Created Successfully!');        
@@ -135,7 +135,7 @@ class PostController extends Controller
         $post->title = $request->title;
         $post->body = $request->body;   
         $post->image = $fileNameToStore;
-        $post->slug = Str::slug($request->title.'-'.auth()->id(), '-');        
+        $post->slug = Str::slug($request->title);        
         $post->save();       
         \DB::commit();
         return redirect()->route('post.index')->with('message', 'Post Updated Successfully!');
