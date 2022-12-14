@@ -13,10 +13,10 @@ use App\Http\Controllers;
 |
 */
 
-Route::get('/', function () {
-    return view('dashboard');
-})->name('home');
 Route::middleware(['auth'])->group(function(){
+    Route::get('/', function () {
+        return view('dashboard');
+    })->name('home');
     Route::post('/logout',[Controllers\AuthController::class,'logout'])->name('logout');
     Route::resource('/post',Controllers\PostController::class)->names('post');
 });

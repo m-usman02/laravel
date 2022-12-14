@@ -117,6 +117,7 @@ class PostController extends Controller
      */
     public function update(PostRequest $request, Post $post)
     {   
+       
         try {
             \DB::beginTransaction();           
             $fileNameToStore = $post->image;
