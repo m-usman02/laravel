@@ -21,6 +21,7 @@ Route::post('/auth/register',[Controllers\Api\AuthController::class,'register'])
 Route::post('/auth/login', [Controllers\Api\AuthController::class,'login']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/post',[Controllers\Api\PostController::class,'index']);
     Route::post('/post',[Controllers\Api\PostController::class,'store']);
     Route::post('/auth/logout',[Controllers\Api\AuthController::class,'logout']);
 });
