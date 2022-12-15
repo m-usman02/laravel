@@ -8,6 +8,8 @@ use Yajra\DataTables\DataTables;
 use App\Http\Requests\PostRequest;
 use Illuminate\Support\Str;
 use Storage;
+use Mail;
+use App\Mail\PostMail;
 class PostController extends Controller
 {
     /**
@@ -55,8 +57,7 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(PostRequest $request)
-    {
-       
+    {      
         
         try {
             \DB::beginTransaction();           
@@ -75,7 +76,8 @@ class PostController extends Controller
         $post->user_id = auth()->id();  
         $post->image = $fileNameToStore;
         $post->slug = Str::slug($request->title);        
-        $post->save();       
+        $post->save();
+        Mail::to('ua3167@gmail.com')->send(new PostMail($post));       
         \DB::commit();
         return redirect()->route('post.index')->with('message', 'Post Created Successfully!');        
         } catch (\Exception $e) {
