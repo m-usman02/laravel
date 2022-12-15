@@ -11,6 +11,9 @@ use Storage;
 use App\Jobs\SendPostMail;
 use App\Models\User;
 use App\Jobs\SendPostMail as Job;
+use App\Events\PostCreatedEvent;
+use Mail;
+use App\Mail\PostMail;
 class PostController extends Controller
 {
     /**
@@ -26,6 +29,17 @@ class PostController extends Controller
            
         foreach ($users as $key => $user) {
             dispatch(new Job($post,$user));          
+        }
+        return 'success';
+     }
+
+     public function sendEmailByListerner()
+     {       
+        $users = User::where('id','!=',auth()->id())->get();
+        $post = Post::where('id',auth()->id())->latest()->first(); 
+           
+        foreach ($users as $key => $user) {
+            Mail::to($user->email)->send(new PostMail($post));      
         }
         return 'success';
      }
@@ -89,11 +103,11 @@ class PostController extends Controller
         $post->image = $fileNameToStore;
         $post->slug = Str::slug($request->title);        
         $post->save();
-             
+        event(new PostCreatedEvent());   
         \DB::commit();
-       
+     
         return redirect()->route('post.index')->with('message', 'Post Created Successfully!');        
-        } catch (\Exception $e) {
+        } catch (\Exception $e) {            
             \DB::rollback();
             \Log::emergency("File: ".$e->getFile().'Line: '.$e->getLine().'Message: '.$e->getMessage());
             return back()->with('message', 'Something went wrong!');           

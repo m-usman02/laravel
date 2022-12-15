@@ -28,7 +28,7 @@ class sendPostMail extends Command
      */
     public function handle()
     {
-        $controller = new PostController(); // make sure to import the controller
+        $controller = new PostController(); 
         $controller->sendEmail();
         Artisan::call('queue:work');
        
