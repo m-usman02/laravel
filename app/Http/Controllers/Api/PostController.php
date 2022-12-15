@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Str;
+
 class PostController extends Controller
 {
     use ApiResponser;
@@ -23,7 +24,7 @@ class PostController extends Controller
             'data' => $post
         ]);
 
-    }
+    }    
 
     /**
      * Show the form for creating a new resource.

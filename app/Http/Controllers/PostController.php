@@ -8,8 +8,9 @@ use Yajra\DataTables\DataTables;
 use App\Http\Requests\PostRequest;
 use Illuminate\Support\Str;
 use Storage;
-use Mail;
-use App\Mail\PostMail;
+use App\Jobs\SendPostMail;
+use App\Models\User;
+use App\Jobs\SendPostMail as Job;
 class PostController extends Controller
 {
     /**
@@ -17,6 +18,17 @@ class PostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+      public function sendEmail()
+     {       
+        $users = User::all();
+        $post = Post::latest()->first(); 
+           
+        foreach ($users as $key => $user) {
+            dispatch(new Job($post,$user));          
+        }
+        return 'success';
+     }
     public function index()
     {
         if (request()->ajax()) {
@@ -77,8 +89,9 @@ class PostController extends Controller
         $post->image = $fileNameToStore;
         $post->slug = Str::slug($request->title);        
         $post->save();
-        Mail::to('ua3167@gmail.com')->send(new PostMail($post));       
+             
         \DB::commit();
+       
         return redirect()->route('post.index')->with('message', 'Post Created Successfully!');        
         } catch (\Exception $e) {
             \DB::rollback();
@@ -88,6 +101,7 @@ class PostController extends Controller
         
     }
 
+    
     /**
      * Display the specified resource.
      *
